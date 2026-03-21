@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cluely-like Overlay</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: rgba(10, 10, 14, 0.9);
+        --accent: #4f8cff;
+        --border: rgba(255, 255, 255, 0.12);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: transparent;
+        overflow: hidden;
+      }
+      #overlay-root {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        pointer-events: none;
+      }
+      #panel {
+        margin: 12px;
+        width: 100%;
+        height: fit-content;
+        background: var(--bg);
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(18px);
+        color: #f5f5f7;
+        pointer-events: auto;
+        display: flex;
+        flex-direction: column;
+        user-select: auto;
+      }
+      #header {
+        padding: 6px 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: move;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #aaa;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      #header .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--accent);
+      }
+
+      /* Tabs */
+      #tabs {
+        display: flex;
+        border-bottom: 1px solid var(--border);
+      }
+      .tab {
+        flex: 0 0 25%;
+        background: transparent;
+        border: none;
+        padding: 6px;
+        color: #aaa;
+        font-size: 13px;
+        cursor: pointer;
+        transition: color 0.15s, border-bottom-color 0.15s;
+        border-bottom: 2px solid transparent;
+      }
+      .tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        font-weight: 500;
+      }
+
+      .tab-content {
+        display: none;
+        flex-direction: column;
+      }
+      .tab-content.active {
+        display: flex;
+      }
+
+      #transcription-log, #response {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 10px;
+        min-height: 100px;
+        max-height: 170px;
+        gap: 6px;
+        overflow-y: scroll;
+        font-size: 13px;
+        scrollbar-width: thin;
+        scrollbar-color: #777 transparent;
+      }
+      #transcription-log {
+        white-space: pre-wrap;
+      }
+      #response {
+        white-space: normal;
+      }
+      .chat-msg {
+        display: flex;
+        padding: 4px 15px;
+        border-radius: 10px;
+        max-width: 85%;
+        width: fit-content;
+        height: fit-content;
+        font-size: 13px;
+        flex: none;
+      }
+      .chat-msg.user {
+        background: rgba(48, 120, 255, 0.15);
+        border: 1px solid rgba(79, 140, 255, 0.3);
+        align-self: flex-end;
+      }
+      .chat-msg.others {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        align-self: flex-start;
+      }
+
+      /* Markdown Styles inside chat bubbles */
+      .chat-msg p { margin: 4px 0; }
+      .chat-msg pre {
+        background: rgba(0,0,0,0.3);
+        padding: 8px;
+        border-radius: 4px;
+        overflow-x: auto;
+        font-family: inherit;
+        font-size: 12px;
+      }
+      .chat-msg code {
+        font-family: monospace;
+        background: rgba(0,0,0,0.2);
+        padding: 2px 4px;
+        border-radius: 3px;
+      }
+      .chat-msg pre code {
+        background: transparent;
+        padding: 0;
+      }
+      .chat-msg ul, .chat-msg ol {
+        margin: 4px 0;
+        padding-left: 24px;
+      }
+      .chat-msg h1, .chat-msg h2, .chat-msg h3, .chat-msg h4 {
+        margin: 8px 0 4px;
+        font-size: 1.1em;
+      }
+      
+      #status {
+        padding: 2px 10px 6px;
+        font-size: 11px;
+        opacity: 0.7;
+      }
+      #input-row {
+        padding: 6px ;
+        display: flex;
+        gap: 6px;
+        border-top: 1px solid var(--border);
+      }
+      #prompt {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 13px;
+        border: 1px solid transparent;
+        color: inherit;
+        outline: none;
+        pointer-events: auto;
+      }
+      #prompt:focus {
+        border-color: var(--accent);
+      }
+      
+      #quick-actions {
+        display: flex;
+        gap: 6px;
+        padding: 0 10px 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      #quick-actions::-webkit-scrollbar {
+        display: none;
+      }
+      .quick-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 4px 10px;
+        font-size: 11px;
+        color: #eee;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: background 0.15s;
+      }
+      .quick-btn:hover {
+        background: rgba(255,255,255,0.1);
+      }
+
+      /* Custom Dropdown Styles */
+      .custom-select-container {
+        position: relative;
+        display: inline-block;
+      }
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        bottom: calc(100% + 4px);
+        left: 0;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        box-shadow: 0 -4px 12px rgba(0,0,0,0.5);
+        z-index: 100;
+        min-width: 140px;
+        padding: 4px;
+      }
+      .dropdown-menu.show {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .dropdown-item {
+        padding: 6px 10px;
+        font-size: 11px;
+        color: #eee;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+      .dropdown-item:hover, .dropdown-item.selected {
+        background: rgba(255,255,255,0.1);
+      }
+      .dropdown-item.disabled {
+        opacity: 0.3;
+        pointer-events: none;
+      }
+
+      /* Help Window dragging in frameless overlays */
+      [data-tauri-drag-region] {
+        -webkit-app-region: drag;
+      }
+      [data-tauri-drag-region] * {
+        -webkit-app-region: no-drag;
+      }
+      button {
+        background: var(--accent);
+        border: none;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #fff;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      button.secondary {
+        background: transparent;
+        border: 1px solid var(--border);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="overlay-root">
+      <div id="panel">
+        <div id="header" data-tauri-drag-region>
+          <div id="tabs" style="display: flex; width: 100%; border-bottom: none;">
+            <button id="tab-btn-transcription" class="tab active">Transcription</button>
+            <button id="tab-btn-ask-ai" class="tab">Ask AI</button>
+            <div style="flex: 1; cursor: move;"></div>
+          </div>
+        </div>
+
+        <div id="tab-content-transcription" class="tab-content active">
+          <div id="transcription-log"></div>
+        </div>
+
+        <div id="tab-content-ask-ai" class="tab-content">
+          <div id="response"></div>
+        </div>
+
+        <div id="quick-actions" style="border-top: 1px solid var(--border); padding-top: 8px;">
+          <button class="quick-btn" data-action="what-next">What should I say?</button>
+          <button class="quick-btn" data-action="summarize">Summarize</button>
+          <button class="quick-btn" data-action="screenshot">Add screenshot</button>
+        </div>
+        
+        <div id="attachment-preview" style="display: none; padding: 4px 8px; border-top: 1px solid var(--border); align-items: center; gap: 8px;">
+          <img id="attachment-img" style="height: 24px; max-width: 40px; border-radius: 4px; object-fit: cover;" />
+          <span style="flex:1; font-size: 11px; color: #acc; font-style: italic;">Screenshot attached</span>
+          <button id="remove-attachment-btn" style="background: transparent; color: #aaa; padding: 2px;">✕</button>
+        </div>
+
+        <div id="input-row">
+          <div class="custom-select-container">
+            <button id="model-select-btn" class="quick-btn" style="height: 100%;">Gemini 3.1 Flash Lite ▼</button>
+            <div id="model-select-menu" class="dropdown-menu">
+              <div class="dropdown-item selected" data-val="gemini-3.1-flash-lite-preview" data-vision="false">Gemini 3.1 Flash Lite</div>
+              <div class="dropdown-item" data-val="gemini-3-flash-preview" data-vision="true">Gemini 3 Flash</div>
+              <div class="dropdown-item" data-val="gemini-2.5-pro" data-vision="true">Gemini 2.5 Pro</div>
+              <div class="dropdown-item" data-val="gemini-2.5-flash-lite" data-vision="false">Gemini 2.5 Flash Lite</div>
+            </div>
+          </div>
+          <input id="prompt" placeholder="Ask Gemini..." autocomplete="off" />
+          <button id="send-btn">Send</button>
+          <button id="mic-btn" class="secondary" title="Toggle Microphone">
+            <svg xmlns="http://www.w3.org/2000/svg" 
+              width="24" height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="2" 
+              stroke-linecap="round" 
+              stroke-linejoin="round">
+
+            <!-- Mic body -->
+            <rect x="9" y="2" width="6" height="12" rx="3" ry="3"></rect>
+
+            <!-- Mic stand -->
+            <line x1="12" y1="18" x2="12" y2="22"></line>
+            <line x1="8" y1="22" x2="16" y2="22"></line>
+
+            <!-- Sound waves -->
+            <path d="M19 10a7 7 0 0 1-14 0"></path>
+
+          </svg>
+          </button>
+          <button id="system-btn" class="secondary" title="Toggle System Audio">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 6px; padding: 2px; border-top: 1px solid var(--border); align-items: center;">
+            <div id="status" style="flex: 1; padding: 0; margin: 0;">Idle • Press Ctrl+B to toggle</div>
+            
+        </div>
+      </div>
+    </div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
+

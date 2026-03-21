@@ -1,0 +1,44 @@
+{
+  "productName": "CluelyOverlay",
+  "version": "0.1.0",
+  "identifier": "com.example.cluelyoverlay",
+  "build": {
+    "beforeBuildCommand": "",
+    "beforeDevCommand": "",
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "security": {
+      "csp": null,
+      "capabilities": [
+        {
+          "identifier": "draggable-window",
+          "windows": ["*"],
+          "permissions": ["core:window:allow-start-dragging"]
+        },
+        {
+          "identifier": "events-listen",
+          "windows": ["main"],
+          "webviews": ["main"],
+          "permissions": ["core:event:default", "core:event:allow-listen"]
+        }
+      ]
+    },
+    "windows": [
+      {
+        "title": "Cluely Overlay",
+        "width": 800,
+        "height": 350,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "resizable": false,
+        "fullscreen": false
+      }
+    ]
+  },
+  "bundle": {
+    "targets": ["msi"]
+  },
+  "plugins": {}
+}
