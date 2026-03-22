@@ -7,19 +7,17 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
       :root {
-        color-scheme: dark;
-        --bg: rgba(10, 10, 14, 0.9);
+        --bg: #0a0a0e;
         --accent: #4f8cff;
-        --border: rgba(255, 255, 255, 0.12);
       }
       * {
         box-sizing: border-box;
       }
-      body {
+      html, body {
         margin: 0;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
           sans-serif;
-        background: transparent;
+        background: transparent !important;
         overflow: hidden;
       }
       #overlay-root {
@@ -38,7 +36,6 @@
         border-radius: 12px;
         border: 1px solid var(--border);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(18px);
         color: #f5f5f7;
         pointer-events: auto;
         display: flex;
@@ -50,7 +47,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        cursor: move;
+        cursor: default;
         font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 0.08em;
@@ -80,6 +77,7 @@
         cursor: pointer;
         transition: color 0.15s, border-bottom-color 0.15s;
         border-bottom: 2px solid transparent;
+        cursor: default;
       }
       .tab.active {
         color: var(--accent);
@@ -122,6 +120,7 @@
         height: fit-content;
         font-size: 13px;
         flex: none;
+        cursor: default;
       }
       .chat-msg.user {
         background: rgba(48, 120, 255, 0.15);
@@ -143,30 +142,36 @@
         overflow-x: auto;
         font-family: inherit;
         font-size: 12px;
+        cursor: default;
       }
       .chat-msg code {
         font-family: monospace;
         background: rgba(0,0,0,0.2);
         padding: 2px 4px;
         border-radius: 3px;
+        cursor: default;
       }
       .chat-msg pre code {
         background: transparent;
         padding: 0;
+        cursor: default;
       }
       .chat-msg ul, .chat-msg ol {
         margin: 4px 0;
         padding-left: 24px;
+        cursor: default;
       }
       .chat-msg h1, .chat-msg h2, .chat-msg h3, .chat-msg h4 {
         margin: 8px 0 4px;
         font-size: 1.1em;
+        cursor: default;
       }
       
       #status {
         padding: 2px 10px 6px;
         font-size: 11px;
         opacity: 0.7;
+        cursor: default;
       }
       #input-row {
         padding: 6px ;
@@ -184,6 +189,8 @@
         color: inherit;
         outline: none;
         pointer-events: auto;
+        cursor: default;
+        cursor: default;
       }
       #prompt:focus {
         border-color: var(--accent);
@@ -195,9 +202,11 @@
         padding: 0 10px 8px;
         overflow-x: auto;
         scrollbar-width: none;
+        cursor: default;
       }
       #quick-actions::-webkit-scrollbar {
         display: none;
+        cursor: default;
       }
       .quick-btn {
         background: rgba(255, 255, 255, 0.05);
@@ -209,15 +218,18 @@
         cursor: pointer;
         white-space: nowrap;
         transition: background 0.15s;
+        cursor: default;
       }
       .quick-btn:hover {
         background: rgba(255,255,255,0.1);
+        cursor: default;
       }
 
       /* Custom Dropdown Styles */
       .custom-select-container {
         position: relative;
         display: inline-block;
+        cursor: default;
       }
       .dropdown-menu {
         display: none;
@@ -231,11 +243,13 @@
         z-index: 100;
         min-width: 140px;
         padding: 4px;
+        cursor: default;
       }
       .dropdown-menu.show {
         display: flex;
         flex-direction: column;
         gap: 2px;
+        cursor: default;
       }
       .dropdown-item {
         padding: 6px 10px;
@@ -243,13 +257,16 @@
         color: #eee;
         cursor: pointer;
         border-radius: 4px;
+        cursor: default;
       }
       .dropdown-item:hover, .dropdown-item.selected {
         background: rgba(255,255,255,0.1);
+        cursor: default;
       }
       .dropdown-item.disabled {
         opacity: 0.3;
         pointer-events: none;
+        cursor: default;
       }
 
       /* Help Window dragging in frameless overlays */
@@ -268,10 +285,12 @@
         color: #fff;
         cursor: pointer;
         white-space: nowrap;
+        cursor: default;
       }
       button.secondary {
         background: transparent;
         border: 1px solid var(--border);
+        cursor: default;
       }
     </style>
   </head>
@@ -282,7 +301,7 @@
           <div id="tabs" style="display: flex; width: 100%; border-bottom: none;">
             <button id="tab-btn-transcription" class="tab active">Transcription</button>
             <button id="tab-btn-ask-ai" class="tab">Ask AI</button>
-            <div style="flex: 1; cursor: move;"></div>
+            <div style="flex: 1; cursor: default;"></div>
           </div>
         </div>
 
@@ -318,7 +337,7 @@
           </div>
           <input id="prompt" placeholder="Ask Gemini..." autocomplete="off" />
           <button id="send-btn">Send</button>
-          <button id="mic-btn" class="secondary" title="Toggle Microphone">
+          <button id="mic-btn" class="secondary">
             <svg xmlns="http://www.w3.org/2000/svg" 
               width="24" height="24" 
               viewBox="0 0 24 24" 
@@ -340,7 +359,7 @@
 
           </svg>
           </button>
-          <button id="system-btn" class="secondary" title="Toggle System Audio">
+          <button id="system-btn" class="secondary">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </button>
         </div>

@@ -17,7 +17,9 @@ A powerful, frameless, native desktop overlay application that provides real-tim
 ## 🚀 Getting Started
 1. **Clone the repository.**
 2. **Install dependencies:**
+   Because this project uses Tauri heavily hooked into Rust, please install the backend Tauri CLI explicitly:
    ```bash
+   cargo install tauri-cli
    npm install
    ```
 3. **Configure your paths:**
@@ -28,9 +30,8 @@ A powerful, frameless, native desktop overlay application that provides real-tim
    ```
 4. **Run the application:**
    ```bash
-   npm run tauri dev
+   cargo tauri dev
    ```
-   *(Or `cargo tauri dev` from the project root if you have the Tauri CLI installed).*
 
 ## 🛂 Usage
 1. Click the **Mic** and **System** toggle buttons to start transcribing Meeting audio. (It will prompt you for your Deepgram key upon first try).

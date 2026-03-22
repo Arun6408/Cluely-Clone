@@ -109,12 +109,6 @@ fn main() {
 
             windows_capture::windows_capture::exclude_from_capture(&main_window);
 
-            // In dev mode, open DevTools so you can see console logs easily.
-            #[cfg(debug_assertions)]
-            {
-                main_window.open_devtools();
-            }
-
             // Global shortcuts
             // We use the plugin builder because the shortcut registration API is different
             // between plugin versions (and this avoids the old .init()/register mismatch).
