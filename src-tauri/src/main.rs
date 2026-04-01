@@ -62,6 +62,20 @@ fn read_file_content(path: String) -> Result<String, String> {
     std::fs::read_to_string(&path).map_err(|e| e.to_string())
 }
 
+#[derive(serde::Serialize)]
+struct ApiKeys {
+    gemini: Option<String>,
+    deepgram: Option<String>,
+}
+
+#[tauri::command]
+fn get_api_keys() -> ApiKeys {
+    ApiKeys {
+        gemini: std::env::var("GEMINI_API_KEY").ok(),
+        deepgram: std::env::var("DEEPGRAM_API_KEY").ok(),
+    }
+}
+
 #[tauri::command]
 fn take_screenshot() -> Result<String, String> {
     let script = r#"
@@ -88,6 +102,8 @@ fn take_screenshot() -> Result<String, String> {
 }
 
 fn main() {
+    let _ = dotenvy::dotenv();
+
     tauri::Builder::default()
         .setup(|app| {
             // `tauri.conf.json` already defines the window(s). In dev mode, this setup hook
@@ -163,7 +179,8 @@ fn main() {
             start_system_audio_capture,
             stop_system_audio_capture,
             take_screenshot,
-            read_file_content
+            read_file_content,
+            get_api_keys
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

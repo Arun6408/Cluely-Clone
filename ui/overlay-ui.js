@@ -150,9 +150,8 @@ export class OverlayApp {
       const payload = event?.payload || event;
       if (!payload || !payload.data_b64) return;
 
-      // Initialize system transcriber lazily on first chunk
       if (!this.systemTranscriber) {
-        const deepgramKey = window.localStorage.getItem("deepgram_api_key") || "";
+        const deepgramKey = this.envKeys?.deepgram || window.localStorage.getItem("deepgram_api_key") || "";
         if (!deepgramKey) return; // Silent fail if no key provided.
         this.systemTranscriber = new DeepgramPcmTranscriber({
             deepgramKey,
@@ -208,7 +207,7 @@ export class OverlayApp {
     this.gemini = new GeminiTextClient(apiKey, model);
 
     // Deepgram API key is only required if user enables microphone/system transcription.
-    let deepgramKey = window.localStorage.getItem("deepgram_api_key") || "";
+    let deepgramKey = this.envKeys?.deepgram || window.localStorage.getItem("deepgram_api_key") || "";
 
     this.setStatus("Auto-starting capture streams...");
     try {
@@ -405,7 +404,7 @@ export class OverlayApp {
 
   async toggleMic() {
     if (!this.transcriber) {
-      let deepgramKey = window.localStorage.getItem("deepgram_api_key") || "";
+      let deepgramKey = this.envKeys?.deepgram || window.localStorage.getItem("deepgram_api_key") || "";
       if (!deepgramKey) {
         deepgramKey =
           window.prompt("Enter Deepgram API key (mic transcription)") || "";
