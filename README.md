@@ -17,35 +17,23 @@ A powerful, frameless, native desktop overlay application that provides real-tim
 ## 🚀 Getting Started
 1. **Clone the repository.**
 2. **Install dependencies:**
+   Because this project uses Tauri heavily hooked into Rust, please install the backend Tauri CLI explicitly:
    ```bash
+   cargo install tauri-cli
    npm install
    ```
-3. **Configuration:**
-   - **API Keys**: Copy `.env.example` to `.env` and fill in your keys. This securely auto-loads them into the app.
-   - **AI Context**: Open `ui/prompt_config.js` and specify your absolute context files:
-     ```javascript
-     export const RESUME_PATH = "C:/Users/.../resume.txt";
-     export const JD_PATH = "C:/Users/.../job_description.txt";
-     ```
+3. **Configure your paths:**
+   Open `ui/prompt_config.js` and specify your absolute file paths:
+   ```javascript
+   export const RESUME_PATH = "C:/Users/.../resume.txt";
+   export const JD_PATH = "C:/Users/.../job_description.txt";
+   ```
 4. **Run the application:**
    ```bash
-   npm run dev
+   cargo tauri dev
    ```
 
 ## 🛂 Usage
-1. Click the **Mic** and **System** toggle buttons to start transcribing Meeting audio. (If not found in `.env`, it prompts for your Deepgram key upon first try).
-2. Type your question into the input bar and click **Send**. (If not found in `.env`, it prompts for your Gemini key).
+1. Click the **Mic** and **System** toggle buttons to start transcribing Meeting audio. (It will prompt you for your Deepgram key upon first try).
+2. Type your question into the input bar and click **Send**. (It will prompt for your Gemini key).
 3. If you need to hide the UI quickly, hit `Ctrl + B` globally on your keyboard to instantly toggle visibility!
-
-## 🐳 Dockerized Build
-
-If you prefer to compile the application without installing Rust and Node natively on your machine, a self-contained Docker pipeline is included.
-
-```bash
-# Build the Rust/Node container image locally
-docker-compose build
-
-# Run the container to seamlessly cross-compile the native Tauri bundle.
-# The resulting executables will automatically appear in your local `src-tauri/target/release` directory!
-docker-compose run builder
-```

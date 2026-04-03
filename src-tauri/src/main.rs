@@ -120,8 +120,29 @@ fn main() {
                 .transparent(true)
                 .always_on_top(true)
                 .resizable(false)
+                .skip_taskbar(true)
+                .visible_on_all_workspaces(true)
                 .build()?
             };
+
+            use tauri::menu::{Menu, MenuItem};
+            use tauri::tray::TrayIconBuilder;
+
+            let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+            let tray_menu = Menu::with_items(app, &[&quit_i])?;
+
+            let mut tray_builder = TrayIconBuilder::new()
+                .menu(&tray_menu)
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "quit" => {
+                        app.exit(0);
+                    }
+                    _ => {}
+                });
+            if let Some(icon) = app.default_window_icon() {
+                tray_builder = tray_builder.icon(icon.clone());
+            }
+            let _tray = tray_builder.build(app)?;
 
             windows_capture::windows_capture::exclude_from_capture(&main_window);
 

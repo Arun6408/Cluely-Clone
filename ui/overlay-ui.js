@@ -123,11 +123,16 @@ export class OverlayApp {
           this.switchTab("ask-ai");
           this.promptEl.value = "Based on the conversation, what should I say next?";
           this.sendPrompt();
+        } else if (action === "answer-question") {
+          this.switchTab("ask-ai");
+          this.promptEl.value = "Based on the conversation and any provided context, please furnish a high-quality, precise answer to the question that was just asked.";
+          this.sendPrompt();
         } else if (action === "summarize") {
           this.switchTab("ask-ai");
           this.promptEl.value = "Please summarize the meeting so far.";
           this.sendPrompt();
         } else if (action === "screenshot") {
+          this.switchTab("ask-ai");
           this.takeScreenshot();
         }
       });

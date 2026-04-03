@@ -1,7 +1,0 @@
-node_modules
-src-tauri/target
-.env
-.env.example
-.git
-.github
-*.log
